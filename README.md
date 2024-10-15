@@ -5,4 +5,5 @@ It would allow users to record expenses across different categories, and attempt
 
 ## Team
 
+- Abhishek Kumar (24M0802)
 - Sriharsha Kotcharlakot (24M0774)
