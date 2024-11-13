@@ -8,3 +8,7 @@ It would allow users to record expenses across different categories, and attempt
 - Digvijay Shalikrao Patil(24M2105)
 - Abhishek Kumar (24M0802)
 - Sriharsha Kotcharlakot (24M0774)
+
+# Build Requirements
+
+- django
