@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Entry List
+{% endblock %}
+
+{% block content %}
+    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'create_entry' %}">Create new entry</a>
+    {% if entry_list %}
+        <ul>
+        {% for entry in entry_list %}
+            <li><a href="{% url 'entry_detail' entry.id %}">{{ entry.title }}</a>: {{ entry.value }}</li>
+        {% endfor %}
+        </ul>
+
+        <p>Total expenditure: {{ sum_of_values }} </p>
+    {% else %}
+        <p>No entries are available.</p>
+    {% endif %}
+{% endblock %}

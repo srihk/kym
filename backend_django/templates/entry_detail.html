@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Entry Detail
+{% endblock %}
+
+{% block content %}
+    {% if entry %}
+        <a href="{% url 'update_entry' entry.id %}">Update</a> | <a href="{% url 'delete_entry' entry.id %}">Delete</a>
+        <h2>Title</h2>
+        <p> {{ entry.title }} </p>
+        <h2>Description</h2>
+        <p> {{ entry.description }} </p>
+        <h2>Created At</h2>
+        <p> {{ entry.createdAt }} </p>
+        <h2>Value</h2>
+        <p> {{ entry.value }} </p>
+    {% else %}
+        <p>Entry not present.</p>
+    {% endif %}
+{% endblock %}
