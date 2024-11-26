@@ -10,11 +10,14 @@ from .models import Entry
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.detail import DetailView
+from django.views.generic.base import TemplateView
 from .forms import EntryForm, AnalyticsFilterForm
 from django.db import models
 import django.http
 import plotly.express as px
 import calendar
+from django.utils import timezone
+import datetime
 
 # Create your views here.
 class EntryListView(LoginRequiredMixin, ListView):
@@ -26,7 +29,30 @@ class EntryListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['sum_of_values'] = context['entry_list'].aggregate(models.Sum('value'))['value__sum']
+        date = timezone.now()
+        prevdate = timezone.now() - datetime.timedelta(days=30)
+        context['monthly_total'] = context['entry_list'].filter(createdAt__startswith=str(date.year)+"-"+str(date.month)).aggregate(models.Sum('value'))['value__sum']
+        prevmonth_total = context['entry_list'].filter(createdAt__startswith=str(prevdate.year)+"-"+str(prevdate.month)).aggregate(models.Sum('value'))['value__sum']
+        if prevmonth_total:
+            context['monthly_change'] = (context['monthly_total'] / prevmonth_total) * 100
+        else:
+            context['monthly_change'] = '-'
+        
+        context['average_value'] = int(context['entry_list'].aggregate(models.Avg('value'))['value__avg'])
+        context['total_entries'] = len(context['entry_list'])
+
+        context['largest_value'] = context['entry_list'].aggregate(models.Max('value'))['value__max']
+        context['largest_entry_date'] = context['entry_list'].order_by('-value')[0].createdAt
+
         return context
+
+class HomeView(LoginRequiredMixin, ListView):
+    template_name = 'home.html'
+    context_object_name = 'recent_entries'
+    model = Entry
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return Entry.objects.filter(user=self.request.user).order_by('createdAt')[:5]
 
 class AnalyticsView(LoginRequiredMixin, FormView):
     template_name='analytics.html'
