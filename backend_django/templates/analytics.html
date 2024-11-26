@@ -6,18 +6,12 @@
 <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Analytics Area -->
+        {% if fig %}
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-800">Spending Analysis</h2>
-                    <div class="flex items-center space-x-2">
-                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="week">Week</button>
-                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="month">Month</button>
-                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="year">Year</button>
-                    </div>
                 </div>
-
-                {% if fig %}
                     <div class="bg-gray-50 p-4 rounded-lg">
                         {{ fig|safe }}
                     </div>
@@ -29,9 +23,9 @@
                         <h3 class="mt-2 text-sm font-medium text-gray-900">No data available</h3>
                         <p class="mt-1 text-sm text-gray-500">Start adding entries to see your spending analysis.</p>
                     </div>
-                {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
 
         <!-- Insights Sidebar -->
         <div class="lg:col-span-1 space-y-6">
@@ -47,6 +41,7 @@
                 </form>
             </div>
 
+            {% if fig %}
             <!-- Quick Stats -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Quick Insights</h3>
@@ -58,12 +53,6 @@
                     <div>
                         <p class="text-sm text-gray-500">Most Active Day</p>
                         <p class="text-xl font-bold text-green-600">{{ most_active_day }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Spending Trend</p>
-                        <p class="text-xl font-bold {% if trend > 0 %}text-red-600{% else %}text-green-600{% endif %}">
-                            {{ trend }}% {% if trend > 0 %}↑{% else %}↓{% endif %}
-                        </p>
                     </div>
                 </div>
             </div>
@@ -80,26 +69,9 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Chart.js Integration -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const buttons = document.querySelectorAll('[data-period]');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            const period = this.dataset.period;
-            // Add logic to update chart based on period
-            updateChart(period);
-        });
-    });
-});
-
-function updateChart(period) {
-    // Add Chart.js update logic here
-    console.log(`Updating chart for ${period}`);
-}
-</script>
 {% endblock %}

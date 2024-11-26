@@ -67,9 +67,6 @@ class AnalyticsView(LoginRequiredMixin, FormView):
         date = form.cleaned_data['month']
         
         filtered_objs = self.get_queryset().filter(createdAt__startswith=str(date.year)+"-"+str(date.month))
-        print("month:", date)
-        for obj in Entry.objects.all():
-            print(obj.createdAt)
         if filtered_objs.exists():
             day_sum = filtered_objs.values('createdAt__day').annotate(total=models.Sum('value'))
             
@@ -81,7 +78,12 @@ class AnalyticsView(LoginRequiredMixin, FormView):
             fig = px.bar(total_month, x='day', y='total', title='Expenses')
             fig.update_layout(barmode='group', xaxis={'type':'category'})
             context['fig'] = fig.to_html(full_html=False)
-            print(day_sum)
+            curdate = timezone.now()
+            print(str(curdate.year)+"-"+str(curdate.month)+"-"+str(curdate.day))
+            context['daily_avg'] = self.get_queryset().filter(createdAt__startswith=str(curdate.year)+"-"+str(curdate.month)+"-"+str(curdate.day)).aggregate(models.Avg('value'))['value__avg']
+            activedate = self.get_queryset().filter(createdAt__startswith=str(curdate.year)+"-"+str(curdate.month)).order_by('-value')[0].createdAt
+            print(activedate)
+            context['most_active_day'] = str(activedate.year) + '-' + str(activedate.month) + '-' + str(activedate.day)
         else:
             context['no_data'] = True
         return render(self.request, self.template_name, context)
