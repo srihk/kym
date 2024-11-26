@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Update Entry
-{% endblock %}
+{% block title %}Update Entry{% endblock %}
 
 {% block content %}
-    <h2>Update Entry</h2>
-    <form method="post">
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Update Entry</h2>
+    
+    <form class="space-y-6" method="post">
         {% csrf_token %}
-        {{ form }}
-        <button type="submit">Update Entry</button>
+        <div class="space-y-4">
+            {{ form }}
+        </div>
+        
+        <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200">
+            Update Entry
+        </button>
     </form>
+</div>
 {% endblock %}

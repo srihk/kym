@@ -1,14 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Delete Entry
-{% endblock %}
+{% block title %}Delete Entry{% endblock %}
 
 {% block content %}
-    <h2>Are you sure you want to delete the entry: {{ entry.title }}?</h2>
-    <form method="post">
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Delete Entry</h2>
+    
+    <div class="mb-6 p-4 bg-red-50 rounded-lg">
+        <p class="text-lg text-red-800">
+            Are you sure you want to delete the entry: <span class="font-bold">{{ entry.title }}</span>?
+        </p>
+    </div>
+    
+    <form class="space-y-6" method="post">
         {% csrf_token %}
         {{ form }}
-        <button type="submit">Delete Entry</button>
+        
+        <div class="flex space-x-4">
+            <button type="button" onclick="history.back()" class="flex-1 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-200">
+                Cancel
+            </button>
+            <button type="submit" class="flex-1 py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition duration-200">
+                Delete Entry
+            </button>
+        </div>
     </form>
+</div>
 {% endblock %}

@@ -1,19 +1,110 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Entry List
-{% endblock %}
+{% block title %}Entry List{% endblock %}
 
 {% block content %}
-    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'create_entry' %}">Create new entry</a> | <a href="{% url 'analytics' %}">Analytics</a>
-    {% if entry_list %}
-        <p>Total expenditure: {{ sum_of_values }} </p>
-        <ul>
-        {% for entry in entry_list %}
-            <li><a href="{% url 'entry_detail' entry.id %}">{{ entry.title }}</a>: {{ entry.value }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No entries are available.</p>
-    {% endif %}
+<div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Spending</h3>
+            <p class="text-2xl font-bold text-blue-600">{{ sum_of_values }}</p>
+            <p class="text-sm text-gray-500 mt-1">All time</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">This Month</h3>
+            <p class="text-2xl font-bold text-green-600">{{ monthly_total }}</p>
+            <p class="text-sm text-gray-500 mt-1">vs last month {{ monthly_change }}%</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Average Entry</h3>
+            <p class="text-2xl font-bold text-purple-600">{{ average_value }}</p>
+            <p class="text-sm text-gray-500 mt-1">From {{ total_entries }} entries</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Largest Entry</h3>
+            <p class="text-2xl font-bold text-red-600">{{ largest_value }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ largest_entry_date }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-800">Your Entries</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="search" placeholder="Search entries..." 
+                               class="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <a href="{% url 'create_entry' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        New Entry
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if entry_list %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for entry in entry_list %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'entry_detail' entry.id %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                {{ entry.title }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-gray-700 truncate max-w-xs">{{ entry.description }}</p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                            {{ entry.createdAt|date:"M j, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <span class="text-gray-900 font-medium">{{ entry.value }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'update_entry' entry.id %}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                            <a href="{% url 'delete_entry' entry.id %}" class="text-red-600 hover:text-red-900">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No entries</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating a new entry.</p>
+            <div class="mt-6">
+                <a href="{% url 'create_entry' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    New Entry
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

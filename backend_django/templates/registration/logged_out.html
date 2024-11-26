@@ -1,10 +1,16 @@
+
 {% extends "base.html" %}
 
-{% block title %}
-    Logged out!
-{% endblock %}
+{% block title %}Logged Out!{% endblock %}
 
 {% block content %}
-    <h2>Logged Out!</h2>
-    <a href="{% url 'home' %}">Home</a>
+<div class="max-w-md mx-auto text-center">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Logged Out!</h2>
+        
+        <a href="{% url 'home' %}" class="inline-block py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200">
+            Back to Home
+        </a>
+    </div>
+</div>
 {% endblock %}

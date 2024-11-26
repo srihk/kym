@@ -1,20 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Analytics
-{% endblock %}
+{% block title %}Analytics{% endblock %}
 
 {% block content %}
-    <a href="{% url 'home' %}">Home</a>
-    <form method="post">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Submit</button>
-    </form>
-    
-    {% if fig %}
-        {{ fig|safe }}
-    {% elif no_data %}
-        No transactions happened in this month!
-    {% endif %}
+<div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Analytics Area -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Spending Analysis</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="week">Week</button>
+                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="month">Month</button>
+                        <button class="px-3 py-1 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200" data-period="year">Year</button>
+                    </div>
+                </div>
+
+                {% if fig %}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        {{ fig|safe }}
+                    </div>
+                {% elif no_data %}
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No data available</h3>
+                        <p class="mt-1 text-sm text-gray-500">Start adding entries to see your spending analysis.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Insights Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Date Range Selector -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Custom Range</h3>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {{ form }}
+                    <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200">
+                        Update Analysis
+                    </button>
+                </form>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Quick Insights</h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Average Daily Spending</p>
+                        <p class="text-xl font-bold text-blue-600">{{ daily_avg }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Most Active Day</p>
+                        <p class="text-xl font-bold text-green-600">{{ most_active_day }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Spending Trend</p>
+                        <p class="text-xl font-bold {% if trend > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {{ trend }}% {% if trend > 0 %}↑{% else %}↓{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Export Data</h3>
+                <div class="space-y-2">
+                    <a href="?export=csv" class="block w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-center transition duration-200">
+                        Export as CSV
+                    </a>
+                    <a href="?export=pdf" class="block w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-center transition duration-200">
+                        Export as PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Integration -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('[data-period]');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const period = this.dataset.period;
+            // Add logic to update chart based on period
+            updateChart(period);
+        });
+    });
+});
+
+function updateChart(period) {
+    // Add Chart.js update logic here
+    console.log(`Updating chart for ${period}`);
+}
+</script>
 {% endblock %}

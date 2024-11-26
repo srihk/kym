@@ -1,15 +1,292 @@
 {% extends "base.html" %}
 
+{% block title %}Dashboard - Know Your Money{% endblock %}
+
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     {% if user.is_authenticated %}
-    Hi {{ user.username }}!
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Log Out</button>
-    </form>
-    <a href="{% url 'entry_list' %}">List Entries</a>
+    <!-- Welcome Header -->
+    <div class="mb-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-2xl font-bold text-gray-900 truncate">
+                        Welcome back, {{ user.username }}!
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Last login: {{ user.last_login|date:"F j, Y, g:i a" }}
+                    </p>
+                </div>
+                <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                    <a href="{% url 'create_entry' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Entry
+                    </a>
+                    <form method="post" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Balance Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 rounded-md bg-blue-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Balance</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ total_balance|default:"$0.00" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Spending Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 rounded-md bg-green-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Monthly Spending</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ monthly_spending|default:"$0.00" }}</dd>
+                        <dd class="text-sm text-gray-500">{{ days_left }} days remaining</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 rounded-md bg-purple-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Recent Activity</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ recent_entries_count }} entries</dd>
+                        <dd class="text-sm text-gray-500">in the last 7 days</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Largest Expense Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 rounded-md bg-yellow-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Largest Expense</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ largest_expense|default:"$0.00" }}</dd>
+                        <dd class="text-sm text-gray-500">{{ largest_expense_date|default:"No expenses" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Transactions -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-medium text-gray-900">Recent Transactions</h2>
+                        <a href="{% url 'entry_list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                            View all
+                        </a>
+                    </div>
+                </div>
+
+                <div class="divide-y divide-gray-200">
+                    {% if recent_entries %}
+                        {% for entry in recent_entries %}
+                        <div class="p-6 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <span class="flex-shrink-0 rounded-full h-8 w-8 flex items-center justify-center 
+                                               {% if entry.value < 0 %}bg-green-100 text-green-600{% else %}bg-red-100 text-red-600{% endif %}">
+                                        {% if entry.value < 0 %}↓{% else %}↑{% endif %}
+                                    </span>
+                                    <div class="ml-4">
+                                        <a href="{% url 'entry_detail' entry.id %}" class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                            {{ entry.title }}
+                                        </a>
+                                        <p class="text-sm text-gray-500">{{ entry.description|truncatechars:50 }}</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-shrink-0">
+                                    <span class="text-sm font-medium {% if entry.value < 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                        {{ entry.value }}
+                                    </span>
+                                    <p class="text-sm text-gray-500">{{ entry.createdAt|date:"M j, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-gray-500">No recent transactions</p>
+                            <a href="{% url 'create_entry' %}" class="mt-2 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
+                                Add your first transaction
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="space-y-6">
+            <!-- Category Breakdown -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Category Breakdown</h2>
+                {% if categories %}
+                    <div class="space-y-4">
+                        {% for category in categories %}
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-500">{{ category.name }}</span>
+                                <span class="text-sm font-medium text-gray-900">{{ category.percentage }}%</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-gray-500">No category data available</p>
+                {% endif %}
+            </div>
+
+            <!-- Quick Links -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+                <div class="space-y-3">
+                    <a href="{% url 'create_entry' %}" class="block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 text-center">
+                        Add New Transaction
+                    </a>
+                    <a href="{% url 'analytics' %}" class="block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 text-center">
+                        View Analytics
+                    </a>
+                    <a href="{% url 'entry_list' %}" class="block px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 text-center">
+                        All Transactions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% else %}
-        <p>You are not logged in</p>
-        <a href="{% url 'login' %}">Log In</a>
+    <!-- Not Logged In View -->
+    <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <svg class="mx-auto h-12 w-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            
+            <h2 class="mt-4 text-xl font-bold text-gray-900">Welcome to Know Your Money</h2>
+            <p class="mt-2 text-gray-600">Track your expenses, analyze spending patterns, and reach your financial goals.</p>
+            
+            <div class="mt-6 space-y-4">
+                <a href="{% url 'login' %}" class="block w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 text-center">
+                    Log In
+                </a>
+                <a href="{% url 'signup' %}" class="block w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition duration-200 text-center">
+                    Sign Up
+                </a>
+            </div>
+            
+            <!-- Feature Highlights -->
+            <div class="mt-8 grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <svg class="mx-auto h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <h3 class="mt-2 font-medium text-gray-900">Track Expenses</h3>
+                    <p class="mt-1 text-sm text-gray-500">Monitor your daily spending with ease</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <svg class="mx-auto h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <h3 class="mt-2 font-medium text-gray-900">Analyze Trends</h3>
+                    <p class="mt-1 text-sm text-gray-500">Visualize your financial patterns</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <svg class="mx-auto h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <h3 class="mt-2 font-medium text-gray-900">Set Goals</h3>
+                    <p class="mt-1 text-sm text-gray-500">Plan and achieve financial targets</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <svg class="mx-auto h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <h3 class="mt-2 font-medium text-gray-900">Secure Data</h3>
+                    <p class="mt-1 text-sm text-gray-500">Your information is safe with us</p>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endif %}
+</div>
+
+<script>
+// Add any JavaScript enhancements here
+document.addEventListener('DOMContentLoaded', function() {
+    // Example: Add smooth transitions for hover effects
+    const hoverElements = document.querySelectorAll('.hover\\:bg-gray-50');
+    hoverElements.forEach(element => {
+        element.addEventListener('mouseenter', () => {
+            element.style.transition = 'background-color 150ms ease-in-out';
+        });
+    });
+
+    // Example: Add animation for stats
+    const stats = document.querySelectorAll('.text-lg.font-bold');
+    stats.forEach(stat => {
+        stat.style.opacity = '0';
+        stat.style.transform = 'translateY(10px)';
+        stat.style.transition = 'opacity 300ms ease-out, transform 300ms ease-out';
+        setTimeout(() => {
+            stat.style.opacity = '1';
+            stat.style.transform = 'translateY(0)';
+        }, 100);
+    });
+});
+</script>
 {% endblock %}
