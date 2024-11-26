@@ -12,3 +12,9 @@ It would allow users to record expenses across different categories, and attempt
 # Build Requirements
 
 - django
+- plotly
+- Command: `pip install django plotly`
+
+# Instructions to run server
+
+- `python manage.py runserver`
