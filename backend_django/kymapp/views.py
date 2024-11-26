@@ -14,6 +14,7 @@ from .forms import EntryForm, AnalyticsFilterForm
 from django.db import models
 import django.http
 import plotly.express as px
+import calendar
 
 # Create your views here.
 class EntryListView(LoginRequiredMixin, ListView):
@@ -32,17 +33,27 @@ class AnalyticsView(LoginRequiredMixin, FormView):
     form_class=AnalyticsFilterForm
     success_url=reverse_lazy('analytics')
 
+    def get_queryset(self) -> QuerySet[Any]:
+        return Entry.objects.filter(user=self.request.user)
+
     def form_valid(self, form: Any) -> HttpResponse:
         context = self.get_context_data()
         date = form.cleaned_data['month']
         
-        filtered_objs = Entry.objects.filter(createdAt__startswith=str(date.year)+"-"+str(date.month))
+        filtered_objs = self.get_queryset().filter(createdAt__startswith=str(date.year)+"-"+str(date.month))
         print("month:", date)
         for obj in Entry.objects.all():
             print(obj.createdAt)
         if filtered_objs.exists():
             day_sum = filtered_objs.values('createdAt__day').annotate(total=models.Sum('value'))
-            fig = px.bar(day_sum, x='createdAt__day', y='total')
+            
+            total_month = []
+            for day in range(1, calendar.monthrange(date.year, date.month)[1]+1):
+                total_month.append({'day': day, "total": 0})
+            for obj in day_sum:
+                total_month[obj['createdAt__day']-1]['total'] = obj['total']
+            fig = px.bar(total_month, x='day', y='total', title='Expenses')
+            fig.update_layout(barmode='group', xaxis={'type':'category'})
             context['fig'] = fig.to_html(full_html=False)
             print(day_sum)
         else:
