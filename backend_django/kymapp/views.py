@@ -17,9 +17,13 @@ import django.http
 import plotly.express as px
 import calendar
 from django.utils import timezone
+import csv
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from io import BytesIO
+from datetime import datetime
 import datetime
-
-# Create your views here.
+from django.utils import timezone
 class EntryListView(LoginRequiredMixin, ListView):
     context_object_name = 'entry_list'
     template_name = 'entry_list.html'
@@ -61,6 +65,87 @@ class AnalyticsView(LoginRequiredMixin, FormView):
 
     def get_queryset(self) -> QuerySet[Any]:
         return Entry.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        # Handle export requests
+        export_type = request.GET.get('export')
+        if export_type == 'csv':
+            return self.export_csv()
+        elif export_type == 'pdf':
+            return self.export_pdf()
+        return super().get(request, *args, **kwargs)
+
+    def export_csv(self):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="spending_analytics_{timezone.now().strftime("%Y%m%d")}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Date', 'Title', 'Description', 'Value'])
+        
+        entries = self.get_queryset().order_by('createdAt')
+        for entry in entries:
+            writer.writerow([
+                entry.createdAt.strftime("%Y-%m-%d"),
+                entry.title,
+                entry.description,
+                entry.value
+            ])
+        
+        return response
+
+    def export_pdf(self):
+        # Create the HttpResponse object with PDF headers
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="spending_analytics_{timezone.now().strftime("%Y%m%d")}.pdf"'
+        
+        # Create the PDF object using ReportLab
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        
+        # Add content to the PDF
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(50, 750, "Spending Analytics Report")
+        
+        p.setFont("Helvetica", 12)
+        p.drawString(50, 720, f"Generated on: {timezone.now().strftime('%Y-%m-%d')}")
+        
+        # Add table headers
+        y_position = 680
+        headers = ['Date', 'Title', 'Value']
+        x_positions = [50, 150, 450]
+        
+        p.setFont("Helvetica-Bold", 10)
+        for header, x in zip(headers, x_positions):
+            p.drawString(x, y_position, header)
+        
+        # Add entries
+        p.setFont("Helvetica", 10)
+        entries = self.get_queryset().order_by('createdAt')
+        
+        for entry in entries:
+            y_position -= 20
+            if y_position < 50:  # Start new page if near bottom
+                p.showPage()
+                y_position = 750
+                p.setFont("Helvetica", 10)
+            
+            p.drawString(50, y_position, entry.createdAt.strftime("%Y-%m-%d"))
+            p.drawString(150, y_position, str(entry.title)[:30])
+            p.drawString(450, y_position, f"INR {entry.value:.2f}")
+        
+        # Add summary
+        total = entries.aggregate(total=models.Sum('value'))['total'] or 0
+        p.setFont("Helvetica-Bold", 10)
+        p.drawString(350, y_position - 30, f"Total Spending: INR {total:.2f}")
+        
+        p.showPage()
+        p.save()
+        
+        # Get the value of the BytesIO buffer and return the response
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response
 
     def form_valid(self, form: Any) -> HttpResponse:
         context = self.get_context_data()

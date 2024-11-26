@@ -37,81 +37,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <!-- Total Balance Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 rounded-md bg-blue-500 p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Balance</dt>
-                        <dd class="text-lg font-bold text-gray-900">{{ total_balance|default:"₹0.00" }}</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-
-        <!-- Monthly Spending Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 rounded-md bg-green-500 p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Monthly Spending</dt>
-                        <dd class="text-lg font-bold text-gray-900">{{ monthly_spending|default:"₹0.00" }}</dd>
-                        <dd class="text-sm text-gray-500">{{ days_left }} days remaining</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-
-        <!-- Activity Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 rounded-md bg-purple-500 p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Recent Activity</dt>
-                        <dd class="text-lg font-bold text-gray-900">{{ recent_entries_count }} entries</dd>
-                        <dd class="text-sm text-gray-500">in the last 7 days</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-
-        <!-- Largest Expense Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 rounded-md bg-yellow-500 p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Largest Expense</dt>
-                        <dd class="text-lg font-bold text-gray-900">{{ largest_expense|default:"₹0.00" }}</dd>
-                        <dd class="text-sm text-gray-500">{{ largest_expense_date|default:"No expenses" }}</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-    </div>
-
+  
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Recent Transactions -->
@@ -169,24 +95,7 @@
 
         <!-- Sidebar Content -->
         <div class="space-y-6">
-            <!-- Category Breakdown -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Category Breakdown</h2>
-                {% if categories %}
-                    <div class="space-y-4">
-                        {% for category in categories %}
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm font-medium text-gray-500">{{ category.name }}</span>
-                                <span class="text-sm font-medium text-gray-900">{{ category.percentage }}%</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-center text-gray-500">No category data available</p>
-                {% endif %}
-            </div>
+
 
             <!-- Quick Links -->
             <div class="bg-white rounded-lg shadow-md p-6">
