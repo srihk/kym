@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Analytics
+{% endblock %}
+
+{% block content %}
+    <a href="{% url 'home' %}">Home</a>
+    <form method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Submit</button>
+    </form>
+    
+    {% if fig %}
+        {{ fig|safe }}
+    {% elif no_data %}
+        No transactions happened in this month!
+    {% endif %}
+{% endblock %}

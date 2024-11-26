@@ -5,15 +5,14 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'create_entry' %}">Create new entry</a>
+    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'create_entry' %}">Create new entry</a> | <a href="{% url 'analytics' %}">Analytics</a>
     {% if entry_list %}
+        <p>Total expenditure: {{ sum_of_values }} </p>
         <ul>
         {% for entry in entry_list %}
             <li><a href="{% url 'entry_detail' entry.id %}">{{ entry.title }}</a>: {{ entry.value }}</li>
         {% endfor %}
         </ul>
-
-        <p>Total expenditure: {{ sum_of_values }} </p>
     {% else %}
         <p>No entries are available.</p>
     {% endif %}
