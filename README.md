@@ -15,7 +15,8 @@ It would allow users to record expenses across different categories, and attempt
 - django 5.1.3
 - plotly
 - pandas
-- Command: `pip install django plotly pandas`
+- reportlab
+- Command: `pip install django plotly pandas reportlab`
 
 # Instructions
 
